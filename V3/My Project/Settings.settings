@@ -1,0 +1,10 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="ID_Pass" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1
+_USER_海原#kaibara#1234_ATR_1#2#3#4#5#6#_TIME_2014/9/19#2014/9/19#</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
