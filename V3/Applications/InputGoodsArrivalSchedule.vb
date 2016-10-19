@@ -580,7 +580,7 @@ Public Class InputGoodsArrivalSchedule
     ''' <remarks> 暫定：本来なら、パスを設定するタブを設けるべき </remarks>
     Private Function GetClientDataPath() As String
 
-        Return "C:\業務管理ソフトData\取引情報\仕入れ情報"
+        Return DataPathDefinition.GetShiireDataPath
 
     End Function
 
@@ -694,8 +694,8 @@ Public Class InputGoodsArrivalSchedule
     ''' <returns></returns>
     ''' <remarks>暫定：本来なら、パスを設定するタブを設けるべき</remarks>
     Private Function GetGoodsSchedulePath() As String
-        
-        Return "C:\業務管理ソフトData\商品情報"
+
+        Return DataPathDefinition.GetProductDataPath
 
     End Function
 
