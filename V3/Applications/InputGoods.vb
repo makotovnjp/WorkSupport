@@ -345,10 +345,8 @@ Public Class InputGoods
                     month_value = GetMonthValue(product_day)
                     save_filename = GetNyukaFileName(client_name, year_value, month_value)
 
-
-
                     '//在庫金額
-                    book_zaikin = app.Workbooks.Open("C:\業務管理ソフトData\商品情報\" + year_value + "\" & year_value + month_value + "\在庫金額" + year_value & month_value + ".xlsx")
+                    book_zaikin = app.Workbooks.Open(DataPathDefinition.GetProductDataPath + "\" + year_value + "\" & year_value + month_value + "\在庫金額" + year_value & month_value + ".xlsx")
                     sheet_zaikin = book_zaikin.Worksheets(1)
                     Dim num As Integer = Integer.Parse(sheet_zaikin.Cells(1, 1).Value)
                     Dim ni, nj As Integer
@@ -747,7 +745,7 @@ Public Class InputGoods
     Private Function GetFolderNameSaveInputGoods(ByVal year As String, ByVal month As String) As String
         Dim folder_path As String = ""
 
-        folder_path = "C:\業務管理ソフトData\商品情報"
+        folder_path = DataPathDefinition.GetProductDataPath()
 
         'yearの情報を加える
         folder_path = folder_path + "\" + year
@@ -862,7 +860,7 @@ Public Class InputGoods
     ''' <returns></returns>
     ''' <remarks></remarks>
     Private Function GetSaveTemplateFileName() As String
-        Return "C:\業務管理ソフトData\Template情報\Template_在庫.xlsx"
+        Return DataPathDefinition.GetTemplateZaikoPath()
 
     End Function
 
