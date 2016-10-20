@@ -198,7 +198,11 @@ Public Class InputGoods
                         'Templateのファイルから新規の在庫表ファイルをコピーする
                         '本来なら、このルートには入らないはず
                         'Hoangの修正で、システム起動するときに、書き込み用のファイルは全部それっているはず？
-                        System.IO.File.Copy(GetSaveTemplateFileName, save_filename)
+                        If IO.File.Exists(GetSaveTemplateFileName) Then 'Fileが存在する
+                            IO.File.Copy(GetSaveTemplateFileName, save_filename)
+                        Else
+                            MsgBox("File:" + GetSaveTemplateFileName + "が存在しない")
+                        End If
 
                         last_month_save_filename = GetLastMonthSaveFileName(year_value, month_value, save_filename)
                         '先月のファイル存在確認

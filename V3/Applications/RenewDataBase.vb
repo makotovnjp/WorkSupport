@@ -1,7 +1,4 @@
 ﻿Imports Microsoft.Office.Interop
-Imports Microsoft.Office.Core
-Imports System.Runtime.InteropServices
-Imports Microsoft.Office.Interop.Excel
 
 '********************************
 '本クラスのコーディングルール
@@ -10,9 +7,6 @@ Imports Microsoft.Office.Interop.Excel
 '*************
 '命名規則：キャメルケース
 '*************
-
-'PreFixのルール
-'Public変数　 : ARRSCHD_
 'Private変数  : l_
 
 '*************
@@ -59,7 +53,11 @@ Public Class RenewDataBase
 
     Private Sub CopytemplateFile(ByVal fromlink As String, ByVal tolink As String, ByVal filename As String)
         'Templateファイルからコピーする
-        System.IO.File.Copy(fromlink + "\" + filename, tolink + "\" + filename)
+        If IO.File.Exists(fromlink + "\" + filename) Then 'Fileが存在する
+            IO.File.Copy(fromlink + "\" + filename, tolink + "\" + filename)
+        Else
+            MsgBox("File:" + fromlink + "\" + filename + "が存在しない")
+        End If
     End Sub
 
     '********************************************
@@ -68,15 +66,33 @@ Public Class RenewDataBase
     '********************************************
     Private Sub ChangeDataForNewMonth(ByVal des_link As String)
         Dim dtToday As DateTime = DateTime.Today ' 現在の日付を取得する
-        Dim fromlink As String = "C:\業務管理ソフトData\テンプレート情報\"
+        Dim fromlink As String = "C:\業務管理ソフトData\Template情報\"
         Dim str_thismonth As String = dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
-        System.IO.File.Copy(fromlink + "Template_入荷.xlsx", des_link + "\" + "入荷" + str_thismonth + ".xlsx")
-        System.IO.File.Copy(fromlink + "Template_出荷.xlsx", des_link + "\" + "出荷" + str_thismonth + ".xlsx")
+
+        'コピーする
+        If IO.File.Exists(fromlink + "Template_入荷.xlsx") Then 'Fileが存在する
+            IO.File.Copy(fromlink + "Template_入荷.xlsx", des_link + "\" + "入荷" + str_thismonth + ".xlsx")
+        Else
+            MsgBox("File:" + fromlink + "Template_入荷.xlsx" + "が存在しない")
+        End If
+
+        If IO.File.Exists(fromlink + "Template_出荷.xlsx") Then 'Fileが存在する
+            IO.File.Copy(fromlink + "Template_出荷.xlsx", des_link + "\" + "出荷" + str_thismonth + ".xlsx")
+        Else
+            MsgBox("File:" + fromlink + "Template_出荷.xlsx" + "が存在しない")
+        End If
+
 
         Dim lastmonth As DateTime = dtToday.AddMonths(-1)
         Dim str_lastmonth As String = lastmonth.Year.ToString + Reform_Month(lastmonth.Month.ToString)
         fromlink = "C:\業務管理ソフトData\商品情報\" + lastmonth.Year.ToString + "\" + str_lastmonth + "\在庫" + str_lastmonth + ".xlsx"
-        System.IO.File.Copy(fromlink, des_link + "\" + "在庫" + str_thismonth + ".xlsx")
+
+        'ファイルからコピーする
+        If IO.File.Exists(fromlink) Then 'Fileが存在する
+            IO.File.Copy(fromlink, des_link + "\" + "在庫" + str_thismonth + ".xlsx")
+        Else
+            MsgBox("File:" + fromlink + "が存在しない")
+        End If
 
         '在庫ファイル内容初期化
         Dim writefile_name As String

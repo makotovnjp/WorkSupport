@@ -140,7 +140,11 @@ Public Class GoodsReceived
                     System.IO.Directory.CreateDirectory(inventoryfolderpath)
 
                     'Templateのファイルから新規の在庫表ファイルをコピーする
-                    System.IO.File.Copy(GetInventoryTemplatePath(), inventoryfilepath)
+                    If IO.File.Exists(GetInventoryTemplatePath()) Then 'Fileが存在する
+                        IO.File.Copy(GetInventoryTemplatePath(), inventoryfilepath)
+                    Else
+                        MsgBox("File:" + GetInventoryTemplatePath() + "が存在しない")
+                    End If
 
                     '新規在庫表の場合、先月の在庫表から品番、品名、月初在庫を入力する
                     last_month_inventoryfilepath = GetLastMonthInventoryPath(l_goodsreceived_date(i), inventoryfilepath)
@@ -148,7 +152,12 @@ Public Class GoodsReceived
                     If last_month_inventoryfilepath <> "" Then
                         '先月の在庫表がある場合
                         '先月からのデータをコピーする
-                        CopyFromLastMonthInventory(last_month_inventoryfilepath, inventoryfilepath)
+                        If IO.File.Exists(last_month_inventoryfilepath) Then 'Fileが存在する
+                            CopyFromLastMonthInventory(last_month_inventoryfilepath, inventoryfilepath)
+                        Else
+                            MsgBox("File:" + last_month_inventoryfilepath + "が存在しない")
+                        End If
+
                     End If
 
                 End If

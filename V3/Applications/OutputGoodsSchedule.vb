@@ -656,10 +656,14 @@ Public Class OutputGoodsSchedule
                 'Do Nothing
             Else
                 '新規ファイルを作成する
-                template_filename = "C:\業務管理ソフトData\テンプレート情報" + "\" + OUTSCHD_TEMPLATE_FILENAME
+                template_filename = "C:\業務管理ソフトData\Template情報" + "\" + OUTSCHD_TEMPLATE_FILENAME
 
                 'Templateファイルからコピーする
-                System.IO.File.Copy(template_filename, filename)
+                If IO.File.Exists(template_filename) Then 'Fileが存在する
+                    IO.File.Copy(template_filename, filename)
+                Else
+                    MsgBox("File:" + template_filename + "が存在しない")
+                End If
 
             End If
 
