@@ -60,7 +60,13 @@ Public Class Check_stock
         End If
 
         'File Open
-        book = app.Workbooks.Open(filelink)
+        If IO.File.Exists(filelink) Then 'Fileが存在する
+            book = app.Workbooks.Open(filelink)
+        Else
+            MsgBox("File:" + filelink + "が存在しない")
+            Exit Sub
+        End If
+
         sheet = book.Worksheets(1)
 
         row_no = 2
@@ -178,8 +184,15 @@ Public Class Check_stock
         app = CreateObject("Excel.Application")
         app.Visible = False
         app.DisplayAlerts = False
+
         'File Open
-        book = app.Workbooks.Open(filename)
+        If IO.File.Exists(filename) Then 'Fileが存在する
+            book = app.Workbooks.Open(filename)
+        Else
+            MsgBox("File:" + filename + "が存在しない")
+            Exit Sub
+        End If
+
         sheet = book.Worksheets(1)
 
         row_no = 4

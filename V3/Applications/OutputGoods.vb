@@ -168,7 +168,14 @@ Public Class OutputGoods
                     save_filename = GetSyukaFileName(customer_name, year_value, month_value)
 
                     'File Open
-                    book = app.Workbooks.Open(save_filename)
+                    If IO.File.Exists(save_filename) Then 'Fileが存在する
+                        book = app.Workbooks.Open(save_filename)
+                    Else
+                        MsgBox("File:" + save_filename + "が存在しない")
+                        Return OUTGOODS_NG
+                    End If
+
+
                     sheet = book.Worksheets(1)
 
 
@@ -321,7 +328,12 @@ Public Class OutputGoods
                     '##################################################################################
 
                     '在庫ファイルを開く
-                    book = app.Workbooks.Open(save_filename)
+                    If IO.File.Exists(save_filename) Then 'Fileが存在する
+                        book = app.Workbooks.Open(save_filename)
+                    Else
+                        MsgBox("File:" + save_filename + "が存在しない")
+                        Return OUTGOODS_NG
+                    End If
                     sheet = book.Worksheets(1)
 
                     '日付の列番号を決定
@@ -470,7 +482,15 @@ Public Class OutputGoods
         app.DisplayAlerts = False
 
         'File Open
-        book = app.Workbooks.Open(strFile)
+
+        If IO.File.Exists(strFile) Then 'Fileが存在する
+            book = app.Workbooks.Open(strFile)
+        Else
+            MsgBox("File:" + strFile + "が存在しない")
+            Exit Sub
+        End If
+
+
         sheet = book.Worksheets(1)
 
         For row_no = OUTGOODS_START_ROW To OUTGOODS_MAX_ROW
@@ -688,10 +708,23 @@ Public Class OutputGoods
         app_current_month = CreateObject("Excel.Application")
 
         'FileOpen
-        book_last_month = app_last_month.Workbooks.Open(lastmonthfilepath)
+        If IO.File.Exists(lastmonthfilepath) Then 'Fileが存在する
+            book_last_month = app_last_month.Workbooks.Open(lastmonthfilepath)
+        Else
+            MsgBox("File:" + lastmonthfilepath + "が存在しない")
+            Exit Sub
+        End If
+
+
         sheet_last_month = book_last_month.Worksheets(1)
 
-        book_current_month = app_current_month.Workbooks.Open(currentmonthfilepath)
+        If IO.File.Exists(currentmonthfilepath) Then 'Fileが存在する
+            book_last_month = app_last_month.Workbooks.Open(currentmonthfilepath)
+        Else
+            MsgBox("File:" + currentmonthfilepath + "が存在しない")
+            Exit Sub
+        End If
+
         sheet_current_month = book_current_month.Worksheets(1)
 
         '*****************************

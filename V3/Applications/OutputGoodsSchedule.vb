@@ -167,7 +167,14 @@ Public Class OutputGoodsSchedule
 
         If System.IO.File.Exists(file_client_data) Then 'Exist File
             'ファイルOpen
-            book = app.Workbooks.Open(file_client_data)
+            If IO.File.Exists(file_client_data) Then 'Fileが存在する
+                book = app.Workbooks.Open(file_client_data)
+            Else
+                MsgBox("File:" + file_client_data + "が存在しない")
+                Exit Sub
+            End If
+
+
             sheet = book.Worksheets(1)
 
             For row_no = 2 To OUTSCHD_CUSTOMER_FILE_MAX_ROW
@@ -278,7 +285,12 @@ Public Class OutputGoodsSchedule
                 app.DisplayAlerts = False
 
                 'File Open
-                book = app.Workbooks.Open(OpenFileDialog.FileName)
+                If IO.File.Exists(OpenFileDialog.FileName) Then 'Fileが存在する
+                    book = app.Workbooks.Open(OpenFileDialog.FileName)
+                Else
+                    MsgBox("File:" + OpenFileDialog.FileName + "が存在しない")
+                    Return OUTSCHD_ERROR
+                End If
                 sheet = book.Worksheets(1)
 
                 For row_no = OUTSCHD_CUSTOMER_FILE_START_ROW To OUTSCHD_CUSTOMER_FILE_MAX_ROW
@@ -358,7 +370,13 @@ Public Class OutputGoodsSchedule
             app.DisplayAlerts = False
 
             'File Open
-            book = app.Workbooks.Open(writefile_name)
+            If IO.File.Exists(writefile_name) Then 'Fileが存在する
+                book = app.Workbooks.Open(writefile_name)
+            Else
+                MsgBox("File:" + writefile_name + "が存在しない")
+                Return OUTSCHD_ERROR
+            End If
+
             sheet = book.Worksheets(1)
 
             '書き込み開始の行番号を求める
@@ -469,7 +487,13 @@ Public Class OutputGoodsSchedule
             app.DisplayAlerts = False
 
             'File Open
-            book = app.Workbooks.Open(filename)
+            If IO.File.Exists(filename) Then 'Fileが存在する
+                book = app.Workbooks.Open(filename)
+            Else
+                MsgBox("File:" + filename + "が存在しない")
+                Exit Sub
+            End If
+
             sheet = book.Worksheets(1)
 
             For delete_row = OUTSCHD_CUSTOMER_FILE_START_ROW To OUTSCHD_CUSTOMER_FILE_MAX_ROW

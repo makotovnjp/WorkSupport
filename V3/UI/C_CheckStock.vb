@@ -44,7 +44,13 @@ Public Class C_CheckStock
         End If
 
         'File Open
-        book = app.Workbooks.Open(filename)
+        If IO.File.Exists(filename) Then 'Fileが存在する
+            book = app.Workbooks.Open(filename)
+        Else
+            MsgBox("File:" + filename + "が存在しない")
+            Exit Sub
+        End If
+
         sheet = book.Worksheets(1)
 
         row_no = 4

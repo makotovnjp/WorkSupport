@@ -106,7 +106,13 @@ Public Class RenewDataBase
         app.DisplayAlerts = False
         writefile_name = des_link + "\" + "在庫" + str_thismonth + ".xlsx"
         'File Open
-        book = app.Workbooks.Open(writefile_name)
+        If IO.File.Exists(writefile_name) Then 'Fileが存在する
+            book = app.Workbooks.Open(writefile_name)
+        Else
+            MsgBox("File:" + writefile_name + "が存在しない")
+            Exit Sub
+        End If
+
         sheet = book.Worksheets(1)
 
         sheet.Cells(1, 2).Value = Today.Year.ToString + "年" + Reform_Month(Today.Month.ToString) + "月間販売実績表/在庫表"

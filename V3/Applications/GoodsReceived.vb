@@ -163,7 +163,13 @@ Public Class GoodsReceived
                 End If
 
                 'File Open
-                book = app.Workbooks.Open(inventoryfilepath)
+                If IO.File.Exists(inventoryfilepath) Then 'Fileが存在する
+                    book = app.Workbooks.Open(inventoryfilepath)
+                Else
+                    MsgBox("File:" + inventoryfilepath + "が存在しない")
+                    Exit Sub
+                End If
+
                 sheet = book.Worksheets(1)
 
                 '日付の列番号を決定
@@ -475,10 +481,22 @@ Public Class GoodsReceived
         app_current_month = CreateObject("Excel.Application")
 
         'FileOpen
-        book_last_month = app_last_month.Workbooks.Open(lastmonthfilepath)
+        If IO.File.Exists(lastmonthfilepath) Then 'Fileが存在する
+            book_last_month = app_last_month.Workbooks.Open(lastmonthfilepath)
+        Else
+            MsgBox("File:" + lastmonthfilepath + "が存在しない")
+            Exit Sub
+        End If
+
         sheet_last_month = book_last_month.Worksheets(1)
 
-        book_current_month = app_current_month.Workbooks.Open(currentmonthfilepath)
+        If IO.File.Exists(currentmonthfilepath) Then 'Fileが存在する
+            book_current_month = app_current_month.Workbooks.Open(currentmonthfilepath)
+        Else
+            MsgBox("File:" + currentmonthfilepath + "が存在しない")
+            Exit Sub
+        End If
+
         sheet_current_month = book_current_month.Worksheets(1)
 
         '*****************************
