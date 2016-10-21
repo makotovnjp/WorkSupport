@@ -575,7 +575,7 @@ Public Class OutputGoods
             'Do Nothing
         Else
             '新規ファイルを作成する
-            template_filename = "C:\業務管理ソフトData\Template情報" + "\" + OUTGOODS_TEMPLATE_FILENAME
+            template_filename = DataPathDefinition.GetTemplateDataPath() + "\" + OUTGOODS_TEMPLATE_FILENAME
 
             If IO.File.Exists(template_filename) Then 'Fileが存在する
                 IO.File.Copy(template_filename, file_path)
@@ -600,7 +600,7 @@ Public Class OutputGoods
     Private Function GetFolderNameSaveOutputGoods(ByVal year As String, ByVal month As String) As String
         Dim folder_path As String = ""
 
-        folder_path = "C:\業務管理ソフトData\商品情報"
+        folder_path = DataPathDefinition.GetProductDataPath()
 
         'yearの情報を加える
         folder_path = folder_path + "\" + year + "\"

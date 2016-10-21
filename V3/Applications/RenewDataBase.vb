@@ -36,7 +36,7 @@ Public Class RenewDataBase
         linkyear = ""
 
         ' 今年のフォルダ が存在しているかどうか確認する
-        linkyear = "C:\業務管理ソフトData\商品情報\" & dtToday.Year.ToString
+        linkyear = DataPathDefinition.GetProductDataPath() + "\" & dtToday.Year.ToString
         If System.IO.Directory.Exists(linkyear) = False Then
             System.IO.Directory.CreateDirectory(linkyear)
             ChangeDataForNewYear(linkyear)
@@ -66,7 +66,7 @@ Public Class RenewDataBase
     '********************************************
     Private Sub ChangeDataForNewMonth(ByVal des_link As String)
         Dim dtToday As DateTime = DateTime.Today ' 現在の日付を取得する
-        Dim fromlink As String = "C:\業務管理ソフトData\Template情報\"
+        Dim fromlink As String = DataPathDefinition.GetTemplateDataPath() + "\"
         Dim str_thismonth As String = dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
 
         'コピーする
@@ -85,7 +85,7 @@ Public Class RenewDataBase
 
         Dim lastmonth As DateTime = dtToday.AddMonths(-1)
         Dim str_lastmonth As String = lastmonth.Year.ToString + Reform_Month(lastmonth.Month.ToString)
-        fromlink = "C:\業務管理ソフトData\商品情報\" + lastmonth.Year.ToString + "\" + str_lastmonth + "\在庫" + str_lastmonth + ".xlsx"
+        fromlink = DataPathDefinition.GetProductDataPath() + "\" + lastmonth.Year.ToString + "\" + str_lastmonth + "\在庫" + str_lastmonth + ".xlsx"
 
         'ファイルからコピーする
         If IO.File.Exists(fromlink) Then 'Fileが存在する

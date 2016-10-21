@@ -37,9 +37,6 @@ Public Class OutputGoodsSchedule
 
     Private Const OUTSCHD_TEMPLATE_FILENAME = "Template_出荷予定.xlsx"
 
-    'お客様の情報パス
-    Private Const OUTSCHD_CUSTOMER_PATH = "C:\業務管理ソフトData\取引情報\お客様"
-
     'お客様の情報を格納するFileの最大行数
     Private Const OUTSCHD_CUSTOMER_FILE_START_ROW As Integer = 2
     Private Const OUTSCHD_CUSTOMER_FILE_MAX_ROW As Integer = 1000
@@ -584,7 +581,7 @@ Public Class OutputGoodsSchedule
     ''' <remarks> 暫定：本来なら、パスを設定するタブを設けるべき </remarks>
     Private Function GetCustomerDataPath() As String
 
-        Return OUTSCHD_CUSTOMER_PATH
+        Return DataPathDefinition.GetCustomerDataPath()
 
     End Function
 
@@ -680,7 +677,7 @@ Public Class OutputGoodsSchedule
                 'Do Nothing
             Else
                 '新規ファイルを作成する
-                template_filename = "C:\業務管理ソフトData\Template情報" + "\" + OUTSCHD_TEMPLATE_FILENAME
+                template_filename = DataPathDefinition.GetTemplateDataPath() + "\" + OUTSCHD_TEMPLATE_FILENAME
 
                 'Templateファイルからコピーする
                 If IO.File.Exists(template_filename) Then 'Fileが存在する
@@ -705,7 +702,7 @@ Public Class OutputGoodsSchedule
     ''' <remarks>暫定：本来なら、パスを設定するタブを設けるべき</remarks>
     Private Function GetGoodsSchedulePath() As String
 
-        Return "C:\業務管理ソフトData\商品情報"
+        Return DataPathDefinition.GetProductDataPath()
 
     End Function
 #End Region
