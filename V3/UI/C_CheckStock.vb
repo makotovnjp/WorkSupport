@@ -16,7 +16,7 @@ Public Class C_CheckStock
         filename += str_yearmonth + "\" + "在庫" + str_yearmonth + ".xlsx"
 
         '在庫ファイルから読み取り
-        Dim product_code, product_name, prodcut_slot, stock_number As String
+        Dim product_code, product_name, product_slot, stock_number As String
         Dim app As Excel.Application
         Dim book As Excel.Workbook
         Dim sheet As Excel.Worksheet
@@ -50,9 +50,9 @@ Public Class C_CheckStock
             If sheet.Cells(row_no, 40).Value > 0 Then
                 product_code = sheet.Cells(row_no, 1).Value.ToString
                 product_name = sheet.Cells(row_no, 2).Value.ToString
-                prodcut_slot = sheet.Cells(row_no, 3).Value
+                product_slot = sheet.Cells(row_no, 3).Value
                 stock_number = sheet.Cells(row_no, 40).Value
-                dgv.Rows.Add((row_no - 3).ToString, product_code, product_name, prodcut_slot, stock_number)
+                dgv.Rows.Add((row_no - 3).ToString, product_code, product_name, product_slot, stock_number)
                 sum += 1
             End If
             row_no += 1

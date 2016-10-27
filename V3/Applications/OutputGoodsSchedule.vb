@@ -140,7 +140,7 @@ Public Class OutputGoodsSchedule
         'Data格納変数
         Dim product_name As String = ""     '品名
         Dim product_code As String = ""     '品番
-        Dim prodcut_slot As String = ""     '入数
+        Dim product_slot As String = ""     '入数
         Dim today As DateTime
         Dim display_today As String         '日付の表示
 
@@ -179,10 +179,10 @@ Public Class OutputGoodsSchedule
                     ''ファイルのデータ取得
                     product_code = sheet.Cells(row_no, OUTSCHD_PRODUCTS_CODE_COL_NO).Value.ToString
                     product_name = sheet.Cells(row_no, OUTSCHD_PRODUCTS_NAME_COL_NO).Value.ToString
-                    prodcut_slot = sheet.Cells(row_no, OUTSCHD_PRODUCTS_SLOT_COL_NO).Value.ToString
+                    product_slot = sheet.Cells(row_no, OUTSCHD_PRODUCTS_SLOT_COL_NO).Value.ToString
 
                     'DataGridViewのデータを設定する
-                    dgv.Rows.Add(display_today + "", product_code, product_name, prodcut_slot, "")
+                    dgv.Rows.Add(display_today + "", product_code, product_name, product_slot, "")
                     sum += 1
                 Else
                     Exit For

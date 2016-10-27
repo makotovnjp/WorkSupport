@@ -60,6 +60,16 @@ Public Class InputGoodsArrivalSchedule
     '扱うFile Type (Extension)
     Private Const FILE_EXTENSION As String = "xlsx"
 
+    '仕入れ先の情報を記載するシート番号
+    Private Const CLIENT_FILE_SHEET_NO As Integer = 1
+
+    '仕入れ先の情報のFormat
+    Private Const CLIENT_FILE_FORMAT_DEF_ROW As Integer = 1 '各列の情報を定義する行
+    Private Const CLIENT_FILE_CODE_COL_NAME As String = "品番"
+    Private Const CLIENT_FILE_NAME_COL_NAME As String = "品名"
+    Private Const CLIENT_FILE_SLOT_COL_NAME As String = "入数"
+
+
 #End Region
 
 #Region "Private変数定義"
@@ -75,7 +85,6 @@ Public Class InputGoodsArrivalSchedule
         Dim product_name As String     '品名
         Dim product_slot As String     '入数
         Dim product_storage As String  '入庫数
-
     End Structure
 #End Region
 
@@ -150,9 +159,9 @@ Public Class InputGoodsArrivalSchedule
         'Data格納変数
         Dim product_name As String = ""     '品名
         Dim product_code As String = ""     '品番
-        Dim prodcut_slot As String = ""     '入数
-        Dim prodcut_uprc As String = ""     '単価
-        Dim prodcut_fxfx As String = ""     '為替
+        Dim product_slot As String = ""     '入数
+        Dim product_uprc As String = ""     '単価
+        Dim product_fxfx As String = ""     '為替
         'Dim product_numb As String = ""     '数
         Dim today As DateTime
         'Dim display_today As String         '日付の表示
@@ -160,65 +169,66 @@ Public Class InputGoodsArrivalSchedule
         'Data Grid View用の変数
         Dim dgv As New DataGridView
 
-
         '初期設定
         sum = 0
         today = DateTime.Today
         'display_today = today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & Today.Month.ToString, 2) + "/" + today.Day.ToString
         dgv = MainFunction.NyukaYoTei_DataGridView1
 
-        app = CreateObject("Excel.Application")
-        app.Visible = False
-        app.DisplayAlerts = False
+        Try
+            app = CreateObject("Excel.Application")
+            app.Visible = False
+            app.DisplayAlerts = False
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            Exit Sub
+        End Try
 
         '選択した取引に対応するファイル名を取得
         file_client_data = GetSelectedFileName()
 
-
-        If System.IO.File.Exists(file_client_data) Then 'Exist File
+        If IO.File.Exists(file_client_data) Then 'Exist File
             'ファイルOpen
-            If IO.File.Exists(file_client_data) Then 'Fileが存在する
+            Try
                 book = app.Workbooks.Open(file_client_data)
-            Else
-                MsgBox("File:" + file_client_data + "が存在しない")
+            Catch ex As Exception
+                MsgBox(ex.Message)
                 Exit Sub
-            End If
+            End Try
 
-            sheet = book.Worksheets(1)
-
-
-            For row_no = 2 To MAX_ROW_NO
-                If sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value <> "" Then
+            '有効なClient Fileである場合
+            If IsValidClientFile(book) Then
+                sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
+                row_no = 2
+                Do While sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value <> ""
                     ''ファイルのデータ取得
                     product_code = sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value.ToString
                     product_name = sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value.ToString
-                    prodcut_slot = sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value.ToString
-                    'prodcut_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
-                    'prodcut_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
+                    product_slot = sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value.ToString
+                    'product_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
+                    'product_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
                     'product_numb = sheet.Cells(row_no, 4).Value
                     'DataGridViewのデータを設定する
-                    dgv.Rows.Add(product_code, product_name, prodcut_slot, "", "")
+                    dgv.Rows.Add(product_code, product_name, product_slot, "", "")
                     sum += 1
-                Else
-                    Exit For
-                End If
+                    row_no += 1
+                Loop
+            Else
+                MsgBox(file_client_data + "は有効なファイルではない。ファイルのフォーマットを確認ください!")
+            End If
 
-            Next
-
-            'File Close
             book.Close()
-
             app.Quit()
 
             ' オブジェクトを解放します。
             sheet = Nothing
             book = Nothing
             app = Nothing
-
+        Else
+            MsgBox("File:" + file_client_data + "が存在しない")
         End If
 
     End Sub
-
 
     ''' <summary>
     ''' 入荷予定ファイルをリードする
@@ -233,8 +243,8 @@ Public Class InputGoodsArrivalSchedule
         Dim product_code As String = ""     '品番
         Dim product_slot As String = ""     '入数
         Dim product_storage As String = ""  '入庫数
-        Dim prodcut_uprc As String = ""     '単価
-        Dim prodcut_fxfx As String = ""     '為替
+        Dim product_uprc As String = ""     '単価
+        Dim product_fxfx As String = ""     '為替
         Dim today As DateTime
         Dim display_today As String         '日付の表示
 
@@ -318,11 +328,11 @@ Public Class InputGoodsArrivalSchedule
                         product_name = sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value.ToString
                         product_slot = sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value
                         product_storage = sheet.Cells(row_no, PRODUCTS_STORAGE_COL_NO).Value
-                        prodcut_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
-                        prodcut_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
+                        product_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
+                        product_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
 
                         'Data Grid Viewにデータを表示させる
-                        dgv.Rows.Add(display_today, product_code, product_name, product_slot, product_storage, prodcut_uprc, prodcut_fxfx)
+                        dgv.Rows.Add(display_today, product_code, product_name, product_slot, product_storage, product_uprc, product_fxfx)
 
                     End If
 
@@ -664,6 +674,10 @@ Public Class InputGoodsArrivalSchedule
 
     End Function
 
+    ''' <summary>
+    ''' 選択した取引の情報を保持するFile名を取得する
+    ''' </summary>
+    ''' <returns></returns>
     Private Function GetSelectedFileName() As String
         Dim filename As String = ""         '取引のファイル名
         Dim client_data_path As String = "" '取引情報を格納するフォルダのパス   
@@ -674,7 +688,7 @@ Public Class InputGoodsArrivalSchedule
         Else
             client_name = MainFunction.NyukaYotei_ShiIreSaki_Combox.SelectedItem.ToString
             client_data_path = GetClientDataPath()
-            filename = client_data_path + "\" + client_name + ".xlsx"
+            filename = client_data_path + "\" + client_name + "." + FILE_EXTENSION
         End If
 
         Return filename
@@ -733,6 +747,27 @@ Public Class InputGoodsArrivalSchedule
 
         Return DataPathDefinition.GetProductDataPath
 
+    End Function
+
+    ''' <summary>
+    ''' 有効なClient Fileなのかどうかをチェックする
+    ''' </summary>
+    ''' <param name="book"></param>
+    ''' <returns></returns>
+    Private Function IsValidClientFile(ByRef book As Excel.Workbook) As Boolean
+        Dim result As Boolean = True
+        Dim sheet As Excel.Worksheet
+
+        sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
+
+        'Client FileのFormatのチェック
+        If sheet.Cells(CLIENT_FILE_FORMAT_DEF_ROW, PRODUCTS_CODE_COL_NO).Value <> CLIENT_FILE_CODE_COL_NAME Or
+           sheet.Cells(CLIENT_FILE_FORMAT_DEF_ROW, PRODUCTS_NAME_COL_NO).Value <> CLIENT_FILE_NAME_COL_NAME Or
+           sheet.Cells(CLIENT_FILE_FORMAT_DEF_ROW, PRODUCTS_SLOT_COL_NO).Value <> CLIENT_FILE_SLOT_COL_NAME Then
+            result = False
+        End If
+
+        Return result
     End Function
 
 #End Region
