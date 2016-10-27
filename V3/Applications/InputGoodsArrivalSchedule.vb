@@ -1,7 +1,6 @@
 ﻿Imports Microsoft.Office.Interop
-Imports Microsoft.Office.Core
-Imports System.Runtime.InteropServices
-Imports Microsoft.Office.Interop.Excel
+
+'入荷予定機能を実現するクラス
 
 '********************************
 '本クラスのコーディングルール
@@ -58,6 +57,9 @@ Public Class InputGoodsArrivalSchedule
     Private Const WRITEFILE_UNITPRICE_COL_NO As Integer = 7   '単価の列番号
     Private Const WRITEFILE_FX_COL_NO As Integer = 8   '為替の列番号
 
+    '扱うFile Type (Extension)
+    Private Const FILE_EXTENSION As String = "xlsx"
+
 #End Region
 
 #Region "Private変数定義"
@@ -88,14 +90,16 @@ Public Class InputGoodsArrivalSchedule
     End Sub
 
     ''' <summary>
-    ''' 取引情報を表示する
+    ''' 取引の名前のリストを取得する
     ''' </summary>
     ''' <remarks></remarks>
-    Public Sub ShowClienList()
+    Public Function GetClienList() As List(Of String)
         Dim client_data_path As String = ""     '取引情報を格納するFolderのパス
         Dim strFiles() As String
         Dim strFile As String
         Dim FileName As String
+
+        Dim clientList As New List(Of String)
 
         '取引先リストを初期化
         InitClientList()
@@ -104,16 +108,30 @@ Public Class InputGoodsArrivalSchedule
         client_data_path = GetClientDataPath()
 
         'フォルダ存在の確認
-        If System.IO.Directory.Exists(client_data_path) Then
-            strFiles = System.IO.Directory.GetFiles(client_data_path, "*.xlsx")
+        If IO.Directory.Exists(client_data_path) Then
+            Try
+                strFiles = IO.Directory.GetFiles(client_data_path, "*." + FILE_EXTENSION)
 
-            For Each strFile In strFiles
-                FileName = System.IO.Path.GetFileNameWithoutExtension(strFile)
-                MainFunction.NyukaYotei_ShiIreSaki_Combox.Items.Add(FileName)
-            Next
+                If strFiles.Count > 0 Then
+                    For Each strFile In strFiles
+                        FileName = IO.Path.GetFileNameWithoutExtension(strFile)
+                        clientList.Add(FileName)
+                    Next
+                Else
+                    MsgBox("フォルダ:" + client_data_path + "の内に取引情報のファイルが存在しない")
+                End If
+
+            Catch ex As Exception
+                MsgBox(ex.Message)
+            End Try
+
+        Else
+            MsgBox("フォルダ:" + client_data_path + "が存在しない")
         End If
 
-    End Sub
+        Return clientList
+
+    End Function
 
     '1月～9月なら01～09を返す。
     Public Function Reform_Month(ByVal mthstr As String) As String

@@ -50,6 +50,8 @@ Public Class MainFunction
     '処理：ユーザーが実行可能な機能を表示
     '********************************************
     Private Sub MainFunction_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        Dim clientList As New List(Of String)
+
         '月や年が始まる時にデータ更新
         renew_data.ChangeDataForNewYearOrNewMonth()
 
@@ -89,7 +91,12 @@ Public Class MainFunction
         End If
 
         'Loadする時に、入荷予定のタブが表示されるため、入荷予定のClientListを表示する必要がある
-        arr_schd.ShowClienList()
+        clientList = arr_schd.GetClienList()
+
+        For Each client As String In clientList
+            Me.NyukaYotei_ShiIreSaki_Combox.Items.Add(client)
+        Next
+
     End Sub
 
 #End Region
@@ -110,9 +117,14 @@ Public Class MainFunction
     ''' <param name="e"></param>
     ''' <remarks></remarks>
     Private Sub TabNyukaYoteiSelecting(ByVal sender As System.Object, ByVal e As System.Windows.Forms.TabControlCancelEventArgs) Handles OutputYotei_FileInput_Bt.Selecting
-        If OutputYotei_FileInput_Bt.SelectedTab.Name = "NyukaYotei" Then
-            arr_schd.ShowClienList()
+        Dim clientList As New List(Of String)
 
+        If OutputYotei_FileInput_Bt.SelectedTab.Name = "NyukaYotei" Then
+            clientList = arr_schd.GetClienList()
+
+            For Each client As String In clientList
+                Me.NyukaYotei_ShiIreSaki_Combox.Items.Add(client)
+            Next
         End If
     End Sub
 
