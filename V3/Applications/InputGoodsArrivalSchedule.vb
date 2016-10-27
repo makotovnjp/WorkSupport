@@ -32,7 +32,6 @@ Public Class InputGoodsArrivalSchedule
     Private Const PRODUCTS_UNITPRICE_COL_NO As Integer = 5   '単価の列番号
     Private Const PRODUCTS_FX_COL_NO As Integer = 6   '為替の列番号
 
-    Private Const ACCEPTABLE_INPUT_FILE_EXTENSION As String = "xls"
     Private Const PRODUCT_TEMPLATE_FILENAME = "Template_入荷予定.xlsx"
 
     Private Const INVENTORY_START_ROW_NO = 2        ' 開始の行
@@ -199,15 +198,23 @@ Public Class InputGoodsArrivalSchedule
             '有効なClient Fileである場合
             If IsValidClientFile(book) Then
                 sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
-                row_no = 2
+                row_no = INVENTORY_START_ROW_NO
                 Do While sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value <> ""
                     ''ファイルのデータ取得
+                    If Len(sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value) = 0 Or
+                        Len(sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value) = 0 Or
+                        Len(sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value) = 0 Then
+                        MsgBox(file_client_data + "の行: " + row_no.ToString + "には不正なデータがあるため、システムが終了する")
+                        Exit Do
+                    End If
+
                     product_code = sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value.ToString
                     product_name = sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value.ToString
                     product_slot = sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value.ToString
                     'product_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
                     'product_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
                     'product_numb = sheet.Cells(row_no, 4).Value
+
                     'DataGridViewのデータを設定する
                     dgv.Rows.Add(product_code, product_name, product_slot, "", "")
                     sum += 1
@@ -268,42 +275,64 @@ Public Class InputGoodsArrivalSchedule
         If openFileName <> "" Then
             '入力ファイルの妥当性をチェックする
             If CheckFormatInputFile(openFileName) = ARRSCHD_OK Then
-                app = CreateObject("Excel.Application")
-                app.Visible = False
-                app.DisplayAlerts = False
+
+                Try
+                    app = CreateObject("Excel.Application")
+                    app.Visible = False
+                    app.DisplayAlerts = False
+                Catch ex As Exception
+                    MsgBox(ex.Message)
+                    Return ARRSCHD_ERROR
+                End Try
 
                 'File Open
                 If IO.File.Exists(openFileName) Then 'Fileが存在する
-                    book = app.Workbooks.Open(openFileName)
+                    Try
+                        book = app.Workbooks.Open(openFileName)
+                    Catch ex As Exception
+                        MsgBox(ex.Message)
+                        Return ARRSCHD_ERROR
+                    End Try
                 Else
                     MsgBox("File:" + openFileName + "が存在しない")
                     Return ARRSCHD_ERROR
                 End If
 
-                sheet = book.Worksheets(1)
+                sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
 
-                For row_no = INVENTORY_START_ROW_NO To MAX_ROW_NO
-                    If Len(sheet.Cells(row_no, PRODUCTS_STORAGE_COL_NO).Value) > 0 Then
-                        '在庫数がある場合
+                '有効なBook
+                If IsValidClientFile(book) Then
+                    row_no = INVENTORY_START_ROW_NO
 
+                    Do While Len(sheet.Cells(row_no, PRODUCTS_STORAGE_COL_NO).Value) > 0
                         'Product情報を保持する
+
+                        'Sheetの値の妥当性を確認する
+                        If Len(sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value) = 0 Or
+                           Len(sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value) = 0 Or
+                           Len(sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value) = 0 Or
+                           Len(sheet.Cells(row_no, PRODUCTS_STORAGE_COL_NO).Value) = 0 Or
+                           Len(sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value) = 0 Then
+                            MsgBox(openFileName + "の行: " + row_no.ToString + "には不正なデータがあるため、システムが終了する")
+                            Exit Do
+                        End If
+
                         product_code = sheet.Cells(row_no, PRODUCTS_CODE_COL_NO).Value.ToString
                         product_name = sheet.Cells(row_no, PRODUCTS_NAME_COL_NO).Value.ToString
                         product_slot = sheet.Cells(row_no, PRODUCTS_SLOT_COL_NO).Value
                         product_storage = sheet.Cells(row_no, PRODUCTS_STORAGE_COL_NO).Value
                         product_uprc = sheet.Cells(row_no, PRODUCTS_UNITPRICE_COL_NO).Value.ToString
-                        product_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
+                        'product_fxfx = sheet.Cells(row_no, PRODUCTS_FX_COL_NO).Value.ToString
 
                         'Data Grid Viewにデータを表示させる
-                        dgv.Rows.Add(display_today, product_code, product_name, product_slot, product_storage, product_uprc, product_fxfx)
+                        dgv.Rows.Add(product_code, product_name, product_slot, product_storage, product_uprc)
 
-                    End If
+                        row_no += 1
+                    Loop
 
-                Next
+                End If
 
-                'File Close
                 book.Close()
-
                 app.Quit()
 
                 ' オブジェクトを解放します。
@@ -315,11 +344,8 @@ Public Class InputGoodsArrivalSchedule
             Else
                 Return ARRSCHD_ERROR
             End If
-
         Else
-
             Return ARRSCHD_ERROR
-
         End If
 
     End Function
@@ -616,17 +642,16 @@ Public Class InputGoodsArrivalSchedule
         Dim file_ext As String = ""         'File拡張子
 
         'File 存在チェック
-        If System.IO.File.Exists(FilePath) Then
+        If IO.File.Exists(FilePath) Then
             'Fileの拡張子を確認する
             file_ext = System.IO.Path.GetExtension(FilePath)
 
-            'xlsの文字列を含むかどうかを検索する
-            If 0 <= file_ext.IndexOf(ACCEPTABLE_INPUT_FILE_EXTENSION) Then
+            'xlsxの文字列を含むかどうかを検索する
+            If 0 <= file_ext.IndexOf(FILE_EXTENSION) Then
                 ret = ARRSCHD_OK
             Else
                 ret = ARRSCHD_ERROR
-                MsgBox("このファイルタイプをサポートしていない")
-
+                MsgBox("選択したファイルはサポートしていないです。")
             End If
         Else
             ret = ARRSCHD_ERROR
