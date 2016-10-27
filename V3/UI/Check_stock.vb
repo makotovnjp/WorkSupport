@@ -12,15 +12,6 @@ Public Class Check_stock
 #End Region
 
 #Region "Main Function"
-    '1月～9月なら01～09を返す。
-    Public Function Reform_Month(ByVal mthstr As String) As String
-        If Integer.Parse(mthstr) < 10 Then
-            Return "0" & mthstr
-        Else
-            Return mthstr
-        End If
-    End Function
-
 
     Private Sub Init_Display()
         Label1.Visible = True
@@ -94,7 +85,8 @@ Public Class Check_stock
     '調べたい区間の入出荷情報表示
     Private Sub Display_StockInfo()
         Dim intyear As Integer = Integer.Parse(YearComboBox3.Text)
-        Dim intmonth As Integer = Integer.Parse(MonthComboBox4.Text)
+        'Dim intmonth As Integer = Integer.Parse(MonthComboBox4.Text)
+        Dim intmonth As Integer = 1
         Dim stryear, strmonth, folderlink As String
 
         NyukaKakutei_DataGridView.Rows.Clear()
@@ -104,7 +96,7 @@ Public Class Check_stock
             folderlink = "C:\業務管理ソフトData\商品情報\" + stryear + "\"
             'フォルダ が存在しているかどうか確認する
             If System.IO.Directory.Exists(folderlink) Then
-                strmonth = Reform_Month(intmonth.ToString)
+                strmonth = Microsoft.VisualBasic.Right("0" & intmonth.ToString, 2)
                 folderlink += stryear + strmonth + "\"
                 'フォルダ が存在しているかどうか確認する
                 If System.IO.Directory.Exists(folderlink) Then
@@ -160,7 +152,7 @@ Public Class Check_stock
         '在庫ファイル名取得
         Dim dtToday As DateTime = DateTime.Today ' 現在の日付を取得する
         Dim filename = "C:\業務管理ソフトData\商品情報\" + dtToday.Year.ToString + "\"
-        Dim str_yearmonth As String = dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
+        Dim str_yearmonth As String = dtToday.Year.ToString + Microsoft.VisualBasic.Right("0" & dtToday.Month.ToString, 2)
         filename += str_yearmonth + "\" + "在庫" + str_yearmonth + ".xlsx"
 
         '在庫ファイルから読み取り
@@ -229,9 +221,9 @@ Public Class Check_stock
             YearComboBox6.Items.Add(i.ToString)
         Next
         YearComboBox3.Text = lastmonth.Year.ToString
-        MonthComboBox4.Text = Reform_Month(lastmonth.Month.ToString)
+        MonthComboBox4.Text = Microsoft.VisualBasic.Right("0" & lastmonth.Month.ToString, 2)
         YearComboBox6.Text = dtToday.Year.ToString
-        MonthComboBox5.Text = Reform_Month(dtToday.Month.ToString)
+        MonthComboBox5.Text = Microsoft.VisualBasic.Right("0" & dtToday.Month.ToString, 2)
     End Sub
 
     Private Sub Check_stock_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load

@@ -232,7 +232,7 @@ Public Class OutputGoodsSchedule
         '初期値設定
         dgv = MainFunction.OutputYoTei_DataGridView1
         today = DateTime.Today
-        display_today = today.Year.ToString + "/" + Reform_Month(today.Month.ToString) + "/" + today.Day.ToString
+        display_today = today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & today.Month.ToString, 2) + "/" + today.Day.ToString
 
         OpenFileDialog.Title = "ファイルを選択してください。"
 
@@ -604,20 +604,6 @@ Public Class OutputGoodsSchedule
         End If
 
         Return filename
-    End Function
-
-    ''' <summary>
-    ''' 1月～9月なら01～09を返す。
-    ''' </summary>
-    ''' <param name="mthstr"></param>
-    ''' <returns></returns>
-    ''' <remarks></remarks>
-    Private Function Reform_Month(ByVal mthstr As String) As String
-        If Integer.Parse(mthstr) < 10 Then
-            Return "0" & mthstr
-        Else
-            Return mthstr
-        End If
     End Function
 
     ''' <summary>

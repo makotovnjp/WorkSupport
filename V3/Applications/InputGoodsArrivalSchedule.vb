@@ -133,15 +133,6 @@ Public Class InputGoodsArrivalSchedule
 
     End Function
 
-    '1月～9月なら01～09を返す。
-    Public Function Reform_Month(ByVal mthstr As String) As String
-        If Integer.Parse(mthstr) < 10 Then
-            Return "0" & mthstr
-        Else
-            Return mthstr
-        End If
-    End Function
-
     ''' <summary>
     ''' 手動入力の処理
     ''' </summary>
@@ -173,7 +164,7 @@ Public Class InputGoodsArrivalSchedule
         '初期設定
         sum = 0
         today = DateTime.Today
-        'display_today = today.Year.ToString + "/" + Reform_Month(today.Month.ToString) + "/" + today.Day.ToString
+        'display_today = today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & Today.Month.ToString, 2) + "/" + today.Day.ToString
         dgv = MainFunction.NyukaYoTei_DataGridView1
 
         app = CreateObject("Excel.Application")
@@ -259,7 +250,7 @@ Public Class InputGoodsArrivalSchedule
         '初期値設定
         dgv = MainFunction.NyukaYoTei_DataGridView1
         today = DateTime.Today
-        display_today = today.Year.ToString + "/" + Reform_Month(today.Month.ToString) + "/" + today.Day.ToString
+        display_today = today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & today.Month.ToString, 2) + "/" + today.Day.ToString
 
         OpenFileDialog.Title = "ファイルを選択してください。"
 
@@ -413,7 +404,7 @@ Public Class InputGoodsArrivalSchedule
                 End If
             Next
 
-            product_day = Today.Year.ToString + "/" + Reform_Month(Today.Month.ToString) + "/" + Today.Day.ToString
+            product_day = Today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & Today.Month.ToString, 2) + "/" + Today.Day.ToString
             product_fx = MainFunction.TextBox1.Text.ToString
             For i = 0 To (product_no - 1)
                 product_code = dgv(DGV_CODE_COL_NO, i).Value.ToString

@@ -5,14 +5,6 @@ Imports Microsoft.Office.Interop.Excel
 
 
 Public Class C_CheckStock
-    '1月～9月なら01～09を返す。
-    Public Function Reform_Month(ByVal mthstr As String) As String
-        If Integer.Parse(mthstr) < 10 Then
-            Return "0" & mthstr
-        Else
-            Return mthstr
-        End If
-    End Function
 
     '在庫確認-------------------------
     Public Sub Stock_Display()
@@ -20,7 +12,7 @@ Public Class C_CheckStock
         '在庫ファイル名取得
         Dim dtToday As DateTime = DateTime.Today ' 現在の日付を取得する
         Dim filename = "C:\業務管理ソフトData\商品情報\" + dtToday.Year.ToString + "\"
-        Dim str_yearmonth As String = dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
+        Dim str_yearmonth As String = dtToday.Year.ToString + Microsoft.VisualBasic.Right("0" & dtToday.Month.ToString, 2)
         filename += str_yearmonth + "\" + "在庫" + str_yearmonth + ".xlsx"
 
         '在庫ファイルから読み取り

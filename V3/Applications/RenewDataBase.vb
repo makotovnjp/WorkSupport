@@ -16,14 +16,6 @@
 Public Class RenewDataBase
 
 #Region "Public Method"
-    '1月～9月なら01～09を返す。
-    Public Function Reform_Month(ByVal mthstr As String) As String
-        If Integer.Parse(mthstr) < 10 Then
-            Return "0" & mthstr
-        Else
-            Return mthstr
-        End If
-    End Function
 
     '********************************************
     '今年や今月のフォルダがあるかどうか確認
@@ -43,7 +35,7 @@ Public Class RenewDataBase
         End If
 
         ' 今月のフォルダ が存在しているかどうか確認する
-        linkmonth = linkyear + "\" + dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
+        linkmonth = linkyear + "\" + dtToday.Year.ToString + Microsoft.VisualBasic.Right("0" & dtToday.Month.ToString, 2)
         If System.IO.Directory.Exists(linkmonth) = False Then
             System.IO.Directory.CreateDirectory(linkmonth)
             ChangeDataForNewMonth(linkmonth)
@@ -67,7 +59,7 @@ Public Class RenewDataBase
     Private Sub ChangeDataForNewMonth(ByVal des_link As String)
         Dim dtToday As DateTime = DateTime.Today ' 現在の日付を取得する
         Dim fromlink As String = DataPathDefinition.GetTemplateDataPath() + "\"
-        Dim str_thismonth As String = dtToday.Year.ToString + Reform_Month(dtToday.Month.ToString)
+        Dim str_thismonth As String = dtToday.Year.ToString + Microsoft.VisualBasic.Right("0" & dtToday.Month.ToString, 2)
 
         'コピーする
         If IO.File.Exists(fromlink + "Template_入荷.xlsx") Then 'Fileが存在する
@@ -84,7 +76,7 @@ Public Class RenewDataBase
 
 
         Dim lastmonth As DateTime = dtToday.AddMonths(-1)
-        Dim str_lastmonth As String = lastmonth.Year.ToString + Reform_Month(lastmonth.Month.ToString)
+        Dim str_lastmonth As String = lastmonth.Year.ToString + Microsoft.VisualBasic.Right("0" & lastmonth.Month.ToString, 2)
         fromlink = DataPathDefinition.GetProductDataPath() + "\" + lastmonth.Year.ToString + "\" + str_lastmonth + "\在庫" + str_lastmonth + ".xlsx"
 
         'ファイルからコピーする
@@ -115,7 +107,7 @@ Public Class RenewDataBase
 
         sheet = book.Worksheets(1)
 
-        sheet.Cells(1, 2).Value = Today.Year.ToString + "年" + Reform_Month(Today.Month.ToString) + "月間販売実績表/在庫表"
+        sheet.Cells(1, 2).Value = Today.Year.ToString + "年" + Microsoft.VisualBasic.Right("0" & Today.Month.ToString, 2) + "月間販売実績表/在庫表"
 
         '初期化
         For row_no = 4 To 100
