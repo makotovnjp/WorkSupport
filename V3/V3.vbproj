@@ -125,6 +125,7 @@
     <Compile Include="Library\ClassExcel.vb" />
     <Compile Include="Applications\RenewDataBase.vb" />
     <Compile Include="Library\DataPathDefinition.vb" />
+    <Compile Include="Library\FileOpener.vb" />
     <Compile Include="UI\Check_stock.Designer.vb">
       <DependentUpon>Check_stock.vb</DependentUpon>
     </Compile>
