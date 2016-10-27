@@ -123,7 +123,6 @@
     <Compile Include="Applications\OutputGoods.vb" />
     <Compile Include="Applications\OutputGoodsSchedule.vb" />
     <Compile Include="Library\ClassExcel.vb" />
-    <Compile Include="Applications\GoodsReceived.vb" />
     <Compile Include="Applications\RenewDataBase.vb" />
     <Compile Include="Library\DataPathDefinition.vb" />
     <Compile Include="UI\Check_stock.Designer.vb">
