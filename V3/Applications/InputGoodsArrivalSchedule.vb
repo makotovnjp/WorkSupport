@@ -20,6 +20,8 @@
 
 Public Class InputGoodsArrivalSchedule
 
+    'add novalid comment
+
 #Region "定数定義"
     Public Const ARRSCHD_OK As Integer = 1
     Public Const ARRSCHD_ERROR As Integer = -1
