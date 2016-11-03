@@ -5,17 +5,6 @@ Imports System.Runtime.InteropServices
 Public Class MainFunction
 
 #Region "定数の定義"
-    '************************************
-    '入荷予定のFormに関する定数の定義　開始
-    '************************************
-    'DataGridView1フォームに関する定義
-    Private Const C_NyukoNo_Column_Name As String = "入庫数"
-    Private Const C_Tanka_Column_Name As String = "単価"
-
-    '************************************
-    '入荷予定のFormに関する定数の定義　終了
-    '************************************
-
 
 
 #End Region
@@ -244,11 +233,14 @@ Public Class MainFunction
         Dim result As DialogResult = MessageBox.Show("入荷予定を入れますか？", "確認", MessageBoxButtons.YesNo)
 
         If result = Windows.Forms.DialogResult.Yes Then
-            arr_schd.WriteData(input_sum)
+            If arr_schd.WriteData(input_sum) = InputGoodsArrivalSchedule.ARRSCHD_OK Then
 
-            MsgBox("入荷予定商品の処理は完了しました")
+                MsgBox("入荷予定商品の処理は完了しました")
+                NyukaYotei_Form_Ini()
+            Else
 
-            NyukaYotei_Form_Ini()
+            End If
+
         End If
 
     End Sub
@@ -299,42 +291,6 @@ Public Class MainFunction
             arr_schd.Cancel()
         End If
 
-    End Sub
-
-    'EditingControlShowingイベントハンドラ
-    Private Sub DataGridView1_EditingControlShowing(ByVal sender As Object,
-        ByVal e As DataGridViewEditingControlShowingEventArgs) _
-        Handles NyukaYoTei_DataGridView1.EditingControlShowing
-        '表示されているコントロールがDataGridViewTextBoxEditingControlか調べる
-        If TypeOf e.Control Is DataGridViewTextBoxEditingControl Then
-            'Dim dgv As DataGridView = CType(sender, DataGridView)
-            Dim dgv As DataGridView = Me.NyukaYoTei_DataGridView1
-
-            '編集のために表示されているコントロールを取得
-            Dim tb As DataGridViewTextBoxEditingControl =
-            CType(e.Control, DataGridViewTextBoxEditingControl)
-
-            'イベントハンドラを削除
-            RemoveHandler tb.KeyPress, AddressOf dataGridViewTextBox_KeyPress
-
-            '該当する列か調べる
-            'If dgv.CurrentCell.OwningColumn.Name.ToString = "入庫数" Then
-            If dgv.CurrentCell.OwningColumn.HeaderText.ToString = C_NyukoNo_Column_Name Or
-               dgv.CurrentCell.OwningColumn.HeaderText.ToString = C_Tanka_Column_Name Then
-                'KeyPressイベントハンドラを追加
-                AddHandler tb.KeyPress, AddressOf dataGridViewTextBox_KeyPress
-            End If
-        End If
-    End Sub
-
-    'DataGridViewに表示されているテキストボックスのKeyPressイベントハンドラ
-    Private Sub dataGridViewTextBox_KeyPress(ByVal sender As Object,
-        ByVal e As KeyPressEventArgs)
-        '数字しか入力できないようにする
-        If e.KeyChar < "0"c Or e.KeyChar > "9"c Then
-            MsgBox("数値(0~9)の値を入力ください")
-            e.Handled = True
-        End If
     End Sub
 
 #End Region
@@ -703,7 +659,7 @@ Public Class MainFunction
     '処理：ユーザー情報修正
     '********************************************
     Private Sub Button10_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button10.Click
-        If User_List.SelectedIndex < 0 Then
+        If User_List.SelectedIndex <0 Then
             MessageBox.Show("ユーザーを選択してください。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
             If GroupBox5.Visible = False Then

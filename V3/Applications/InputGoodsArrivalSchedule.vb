@@ -425,33 +425,48 @@ Public Class InputGoodsArrivalSchedule
 
                 product_clientname = MainFunction.NyukaYotei_ShiIreSaki_Combox.SelectedItem.ToString
 
-                If Len(product_storage) > 0 Then
+                If Len(product_storage) And Len(product_unitprice) > 0 Then
+
+                    If IsNumeric(product_storage) = False Then
+                        MsgBox((i + 1).ToString & "行目の入庫数の値は数値ではない")
+                        Return ARRSCHD_ERROR
+                    End If
+
+                    If IsNumeric(product_unitprice) = False Then
+                        MsgBox((i + 1).ToString & "行目の単価の値は数値ではない")
+                        Return ARRSCHD_ERROR
+                    End If
+
+                    If IsNumeric(product_fx) = False Then
+                        MsgBox((i + 1).ToString & "為替の値は数値ではない")
+                        Return ARRSCHD_ERROR
+                    End If
 
                     '日付
                     sheet.Cells(row_no, WRITEFILE_DAY_COL_NO).Value = product_day
 
-                    '仕入れ先名
-                    sheet.Cells(row_no, WRITEFILE_SHIIRE_COL_NO).Value = product_clientname
+                        '仕入れ先名
+                        sheet.Cells(row_no, WRITEFILE_SHIIRE_COL_NO).Value = product_clientname
 
-                    '品番
-                    sheet.Cells(row_no, WRITEFILE_CODE_COL_NO).Value = product_code
+                        '品番
+                        sheet.Cells(row_no, WRITEFILE_CODE_COL_NO).Value = product_code
 
-                    '品名
-                    sheet.Cells(row_no, WRITEFILE_NAME_COL_NO).Value = product_name
+                        '品名
+                        sheet.Cells(row_no, WRITEFILE_NAME_COL_NO).Value = product_name
 
-                    '入数
-                    sheet.Cells(row_no, WRITEFILE_SLOT_COL_NO).Value = product_slot
+                        '入数
+                        sheet.Cells(row_no, WRITEFILE_SLOT_COL_NO).Value = product_slot
 
-                    '入庫数
-                    sheet.Cells(row_no, WRITEFILE_STORAGE_COL_NO).Value = product_storage
+                        '入庫数
+                        sheet.Cells(row_no, WRITEFILE_STORAGE_COL_NO).Value = product_storage
 
-                    '単価
-                    sheet.Cells(row_no, WRITEFILE_UNITPRICE_COL_NO).Value = product_unitprice
+                        '単価
+                        sheet.Cells(row_no, WRITEFILE_UNITPRICE_COL_NO).Value = product_unitprice
 
-                    '為替
-                    sheet.Cells(row_no, WRITEFILE_FX_COL_NO).Value = product_fx
+                        '為替
+                        sheet.Cells(row_no, WRITEFILE_FX_COL_NO).Value = product_fx
 
-                    row_no = row_no + 1
+                        row_no = row_no + 1
 
                 End If
 
