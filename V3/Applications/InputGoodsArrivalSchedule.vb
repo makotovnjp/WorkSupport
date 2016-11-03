@@ -350,6 +350,11 @@ Public Class InputGoodsArrivalSchedule
 
     End Function
 
+    ''' <summary>
+    ''' 入力したデータを入荷ファイルにWriteする
+    ''' </summary>
+    ''' <param name="product_no"></param>
+    ''' <returns></returns>
     Public Function WriteData(ByVal product_no As Integer) As Integer
         Dim writefile_name As String
         Dim dgv As New DataGridView
@@ -362,7 +367,6 @@ Public Class InputGoodsArrivalSchedule
         Dim product_storage As String = ""  '入庫数
         Dim product_unitprice As String = ""  '単価
         Dim product_fx As String = ""  '為替
-        'Dim product_no As Integer           '項目数
         Dim i As Integer
 
         Dim app As Excel.Application
@@ -372,20 +376,29 @@ Public Class InputGoodsArrivalSchedule
 
         '初期化
         dgv = MainFunction.NyukaYoTei_DataGridView1
-        'product_no = dgv.Rows.Count
 
         '入荷予定情報のファイルを作成する
         writefile_name = MakeFileToWrite()
 
         '入荷予定情報のファイルにデータを書き込む
         If product_no > 0 Then
-            app = CreateObject("Excel.Application")
-            app.Visible = False
-            app.DisplayAlerts = False
+            Try
+                app = CreateObject("Excel.Application")
+                app.Visible = False
+                app.DisplayAlerts = False
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Return ARRSCHD_ERROR
+            End Try
 
             'File Open
             If IO.File.Exists(writefile_name) Then 'Fileが存在する
-                book = app.Workbooks.Open(writefile_name)
+                Try
+                    book = app.Workbooks.Open(writefile_name)
+                Catch ex As Exception
+                    MsgBox(ex.Message)
+                    Return ARRSCHD_ERROR
+                End Try
             Else
                 MsgBox("File:" + writefile_name + "が存在しない")
                 Return ARRSCHD_ERROR
@@ -394,25 +407,21 @@ Public Class InputGoodsArrivalSchedule
             sheet = book.Worksheets(1)
 
             '書き込み開始の行番号を求める
-            For row_no = INVENTORY_START_ROW_NO To MAX_ROW_NO
-                If Len(sheet.Cells(row_no, WRITEFILE_DAY_COL_NO).Value) = 0 Then
-                    Exit For
-                Else
-                    'Do Nothing
-
-                End If
-            Next
+            row_no = INVENTORY_START_ROW_NO
+            Do While Len(sheet.Cells(row_no, WRITEFILE_DAY_COL_NO).Value) > 0
+                row_no = row_no + 1
+            Loop
 
             product_day = Today.Year.ToString + "/" + Microsoft.VisualBasic.Right("0" & Today.Month.ToString, 2) + "/" + Today.Day.ToString
             product_fx = MainFunction.TextBox1.Text.ToString
+
+            'データ書き込み部
             For i = 0 To (product_no - 1)
                 product_code = dgv(DGV_CODE_COL_NO, i).Value.ToString
                 product_name = dgv(DGV_NAME_COL_NO, i).Value.ToString
                 product_slot = dgv(DGV_SLOT_COL_NO, i).Value.ToString
                 product_storage = dgv(DGV_STORAGE_COL_NO, i).Value.ToString
                 product_unitprice = dgv(DGV_UNITPRICE_COL_NO, i).Value.ToString
-                'product_fx = dgv(DGV_FX_COL_NO, i).Value.ToString
-
 
                 product_clientname = MainFunction.NyukaYotei_ShiIreSaki_Combox.SelectedItem.ToString
 
@@ -441,7 +450,6 @@ Public Class InputGoodsArrivalSchedule
 
                     '為替
                     sheet.Cells(row_no, WRITEFILE_FX_COL_NO).Value = product_fx
-
 
                     row_no = row_no + 1
 
@@ -690,25 +698,21 @@ Public Class InputGoodsArrivalSchedule
     ''' <returns>入荷予定情報を格納するファイル名</returns>
     ''' <remarks></remarks>
     Private Function MakeFileToWrite() As String
-        Dim clientname As String                '取引先名
-        Dim goods_schedule_path As String       '取引情報を格納パス
         Dim template_filename As String = ""
         Dim filename As String = ""
 
         If MainFunction.NyukaYotei_ShiIreSaki_Combox.SelectedIndex < 0 Then
             MessageBox.Show("仕入れ先を入力ください", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         Else
-            clientname = MainFunction.NyukaYotei_ShiIreSaki_Combox.SelectedItem.ToString
-            goods_schedule_path = GetGoodsSchedulePath()
-            filename = goods_schedule_path + "\入荷予定.xlsx"
+            filename = DataPathDefinition.GetNyukaYoteiFilePath()
 
             'ファイルの存在確認
-            If System.IO.File.Exists(filename) Then
+            If IO.File.Exists(filename) Then
                 'ファイルがすでに存在する場合
                 'Do Nothing
             Else
                 '新規ファイルを作成する
-                template_filename = "C:\業務管理ソフトData\Template情報" + "\" + PRODUCT_TEMPLATE_FILENAME
+                template_filename = DataPathDefinition.GetTemplateNyukaPath()
 
                 'Templateファイルからコピーする
                 If IO.File.Exists(template_filename) Then 'Fileが存在する

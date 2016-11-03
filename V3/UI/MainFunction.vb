@@ -4,6 +4,22 @@ Imports System.Runtime.InteropServices
 
 Public Class MainFunction
 
+#Region "定数の定義"
+    '************************************
+    '入荷予定のFormに関する定数の定義　開始
+    '************************************
+    'DataGridView1フォームに関する定義
+    Private Const C_NyukoNo_Column_Name As String = "入庫数"
+    Private Const C_Tanka_Column_Name As String = "単価"
+
+    '************************************
+    '入荷予定のFormに関する定数の定義　終了
+    '************************************
+
+
+
+#End Region
+
 #Region "変数定義"
 
     'データ更新関連
@@ -283,6 +299,42 @@ Public Class MainFunction
             arr_schd.Cancel()
         End If
 
+    End Sub
+
+    'EditingControlShowingイベントハンドラ
+    Private Sub DataGridView1_EditingControlShowing(ByVal sender As Object,
+        ByVal e As DataGridViewEditingControlShowingEventArgs) _
+        Handles NyukaYoTei_DataGridView1.EditingControlShowing
+        '表示されているコントロールがDataGridViewTextBoxEditingControlか調べる
+        If TypeOf e.Control Is DataGridViewTextBoxEditingControl Then
+            'Dim dgv As DataGridView = CType(sender, DataGridView)
+            Dim dgv As DataGridView = Me.NyukaYoTei_DataGridView1
+
+            '編集のために表示されているコントロールを取得
+            Dim tb As DataGridViewTextBoxEditingControl =
+            CType(e.Control, DataGridViewTextBoxEditingControl)
+
+            'イベントハンドラを削除
+            RemoveHandler tb.KeyPress, AddressOf dataGridViewTextBox_KeyPress
+
+            '該当する列か調べる
+            'If dgv.CurrentCell.OwningColumn.Name.ToString = "入庫数" Then
+            If dgv.CurrentCell.OwningColumn.HeaderText.ToString = C_NyukoNo_Column_Name Or
+               dgv.CurrentCell.OwningColumn.HeaderText.ToString = C_Tanka_Column_Name Then
+                'KeyPressイベントハンドラを追加
+                AddHandler tb.KeyPress, AddressOf dataGridViewTextBox_KeyPress
+            End If
+        End If
+    End Sub
+
+    'DataGridViewに表示されているテキストボックスのKeyPressイベントハンドラ
+    Private Sub dataGridViewTextBox_KeyPress(ByVal sender As Object,
+        ByVal e As KeyPressEventArgs)
+        '数字しか入力できないようにする
+        If e.KeyChar < "0"c Or e.KeyChar > "9"c Then
+            MsgBox("数値(0~9)の値を入力ください")
+            e.Handled = True
+        End If
     End Sub
 
 #End Region

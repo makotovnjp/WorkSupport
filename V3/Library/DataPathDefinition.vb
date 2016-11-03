@@ -15,6 +15,9 @@
     Private Const C_SHIIRE_FOLDER_NAME As String = "仕入れ情報"
     Private Const C_CUSTOMER_FOLDER_NAME As String = "お客様"
 
+    '商品情報以下のFile, Folders
+    Private Const C_NYUKA_YOTEI_FILE_NAME As String = "入荷予定.xlsx"
+    Private Const C_SYUKA_YOTEI_FILE_NAME As String = "出荷予定.xlsx"
 
     Public Shared ReadOnly Property GetRootDataPath() As String
         Get
@@ -108,6 +111,32 @@
             Return GetTradeDataPath() + "\" + C_CUSTOMER_FOLDER_NAME
         End Get
     End Property
+
+#End Region
+
+#Region "商品情報以下のFile, Folders"
+    ''' <summary>
+    ''' 仕入れ予定情報を記憶するファイルパス
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared ReadOnly Property GetNyukaYoteiFilePath() As String
+        Get
+            Return GetProductDataPath() + "\" + C_NYUKA_YOTEI_FILE_NAME
+        End Get
+    End Property
+
+    ''' <summary>
+    ''' 出荷予定情報を記憶するファイルパス
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared ReadOnly Property GetSyukaYoteiFilePath() As String
+        Get
+            Return GetProductDataPath() + "\" + C_SYUKA_YOTEI_FILE_NAME
+        End Get
+
+    End Property
+
+
 
 #End Region
 
