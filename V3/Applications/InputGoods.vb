@@ -21,7 +21,6 @@ Imports Microsoft.Office.Interop.Excel
 
 Public Class InputGoods
 
-
 #Region "データ部"
     Public Const INGOODS_OK As Integer = 1
     Public Const INGOODS_NG As Integer = (-1)
@@ -48,10 +47,6 @@ Public Class InputGoods
     Private Const DGV_STORAGE_COL_NO As Integer = 6   '入庫数の列番号
     Private Const DGV_UNITPRICE_COL_NO As Integer = 7   '単価の列番号
     Private Const DGV_FX_COL_NO As Integer = 8   '為替の列番号
-
-    '在庫情報のフォルダ名
-    Private Const INVENTORY_FOLDER_NAME As String = "\Data\在庫情報"
-    Private Const INVENTORY_TEMPLATE_FILE_NAME As String = "Template_在庫情報.xls"   '在庫表のTemplateファイル名
 
     '在庫表の列番号
     Private Const INVENTORY_PRODUCTS_CODE_COL_NO As Integer = 1
@@ -120,7 +115,6 @@ Public Class InputGoods
 
     End Sub
 
-
     '入荷情報を更新する
     Public Function InputNyukaFile() As Integer
         Dim i As Integer
@@ -157,123 +151,144 @@ Public Class InputGoods
         Dim app As Excel.Application
         Dim book As Excel.Workbook
         Dim sheet As Excel.Worksheet
-        Dim book_zaikin As Excel.Workbook
-        Dim sheet_zaikin As Excel.Worksheet
+        'Dim book_zaikin As Excel.Workbook
+        'Dim sheet_zaikin As Excel.Worksheet
 
         dgv = MainFunction.NyukaKakutei_DataGridView
         RowCount = GetNotInputItems()
 
         If RowCount > 1 Then
-            app = CreateObject("Excel.Application")
-            app.Visible = False
-            app.DisplayAlerts = False
+            Try
+                app = CreateObject("Excel.Application")
+                app.Visible = False
+                app.DisplayAlerts = False
+            Catch ex As Exception
+                Return INGOODS_NG
+            End Try
 
             For i = 0 To RowCount - 2
                 '入庫確定
                 If dgv(0, i - delete_no).Value = True Then   '1行を削除した後に、行番号を1個増えるから
                     '入庫情報を設定する
-                    client_name = dgv(DGV_CLIENT_NAME, i - delete_no).Value.ToString
-                    product_day = dgv(DGV_DAY_COL_NO, i - delete_no).Value.ToString
-                    product_code = dgv(DGV_CODE_COL_NO, i - delete_no).Value.ToString
-                    product_name = dgv(DGV_NAME_COL_NO, i - delete_no).Value.ToString
-                    product_slot = dgv(DGV_SLOT_COL_NO, i - delete_no).Value.ToString
-                    product_storage = dgv(DGV_STORAGE_COL_NO, i - delete_no).Value.ToString
-                    product_unitprice = dgv(DGV_UNITPRICE_COL_NO, i - delete_no).Value.ToString
-                    product_fx = dgv(DGV_FX_COL_NO, i - delete_no).Value.ToString
+                    If Len(dgv(DGV_CLIENT_NAME, i - delete_no).Value) > 0 Then
+                        client_name = dgv(DGV_CLIENT_NAME, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_DAY_COL_NO, i - delete_no).Value) > 0 Then
+                        product_day = dgv(DGV_DAY_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_CODE_COL_NO, i - delete_no).Value) > 0 Then
+                        product_code = dgv(DGV_CODE_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_NAME_COL_NO, i - delete_no).Value) > 0 Then
+                        product_name = dgv(DGV_NAME_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_SLOT_COL_NO, i - delete_no).Value) > 0 Then
+                        product_slot = dgv(DGV_SLOT_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_STORAGE_COL_NO, i - delete_no).Value) > 0 Then
+                        product_storage = dgv(DGV_STORAGE_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If Len(dgv(DGV_UNITPRICE_COL_NO, i - delete_no).Value) > 0 Then
+                        product_unitprice = dgv(DGV_UNITPRICE_COL_NO, i - delete_no).Value.ToString
+                    End If
+
+                    If (Len(dgv(DGV_FX_COL_NO, i - delete_no).Value) > 0) Then
+                        product_fx = dgv(DGV_FX_COL_NO, i - delete_no).Value.ToString
+                    End If
 
                     '入庫情報を保存するファイルを探す
                     year_value = GetYearValue(product_day)
                     month_value = GetMonthValue(product_day)
-                    save_filename = GetNyukaFileName(client_name, year_value, month_value)
+                        save_filename = GetNyukaFileName(client_name, year_value, month_value)
 
+                        If IO.File.Exists(save_filename) Then    '在庫表のファイルが存在する
+                            'Do Nothing
+                        Else    '在庫表のファイルが存在しない場合、新規ファイルを作成する
+                            save_foldername = GetFolderNameSaveInputGoods(year_value, month_value)
 
-                    If System.IO.File.Exists(save_filename) Then    '在庫表のファイルが存在する
-                        'Do Nothing
-                    Else    '在庫表のファイルが存在しない場合、新規ファイルを作成する
-                        save_foldername = GetFolderNameSaveInputGoods(year_value, month_value)
+                            'フォルダ作成
+                            IO.Directory.CreateDirectory(save_foldername)
 
-                        'フォルダ作成
-                        System.IO.Directory.CreateDirectory(save_foldername)
+                            'Templateのファイルから新規の在庫表ファイルをコピーする
+                            '本来なら、このルートには入らないはずですが、バカ避けの意味で処理を入れている
+                            If IO.File.Exists(GetSaveTemplateFileName) Then 'Fileが存在する
+                                IO.File.Copy(GetSaveTemplateFileName, save_filename)
+                            Else
+                                MsgBox("File:" + GetSaveTemplateFileName() + "が存在しない")
+                            End If
 
-                        'Templateのファイルから新規の在庫表ファイルをコピーする
-                        '本来なら、このルートには入らないはず
-                        'Hoangの修正で、システム起動するときに、書き込み用のファイルは全部それっているはず？
-                        If IO.File.Exists(GetSaveTemplateFileName) Then 'Fileが存在する
-                            IO.File.Copy(GetSaveTemplateFileName, save_filename)
-                        Else
-                            MsgBox("File:" + GetSaveTemplateFileName + "が存在しない")
+                            last_month_save_filename = GetLastMonthSaveFileName(year_value, month_value, save_filename)
+                            '先月のファイル存在確認
+                            If last_month_save_filename <> "" Then
+                                'ファイルが存在する場合
+                                '先月の在庫情報からコピーする
+                                CopyFromLastMonthInventory(last_month_save_filename, save_filename)
+                            Else
+                                'ファイルが存在しない場合: Do Nothing
+
+                            End If
+
                         End If
 
-                        last_month_save_filename = GetLastMonthSaveFileName(year_value, month_value, save_filename)
-                        '先月のファイル存在確認
-                        If last_month_save_filename <> "" Then
-                            'ファイルが存在する場合
-                            '先月の在庫情報からコピーする
-                            CopyFromLastMonthInventory(last_month_save_filename, save_filename)
+                        'File Open
+                        If IO.File.Exists(save_filename) Then 'Fileが存在する
+                            book = app.Workbooks.Open(save_filename)
                         Else
-                            'ファイルが存在しない場合: Do Nothing
-
+                            MsgBox("File:" + save_filename + "が存在しない")
+                            Return INGOODS_NG
                         End If
+
+                        sheet = book.Worksheets(1)
+
+                        '日付の列番号を決定
+                        day_value = GetDayValue(product_day)
+
+                        '同じ品番の行番号を探す。同じ品番が無い場合、新しい行を追加する
+
+                        row_no = START_ROW
+
+                        Do While Len(sheet.Cells(row_no, NYUKA_PRODUCTS_SHIIRE_COL_NO).Value) > 0
+                            row_no = row_no + 1
+                        Loop
+
+                        '入荷確定のデータを在庫表に書き込む
+                        '入荷確定日付
+                        sheet.Cells(row_no, NYUKA_DAY_COL_NO).Value = product_day
+
+                        '仕入れ先
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_SHIIRE_COL_NO).Value = client_name
+
+                        '品番
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_CODE_COL_NO).Value = product_code
+
+                        '品名
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_NAME_COL_NO).Value = product_name
+
+                        '入数
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_SLOT_COL_NO).Value = product_slot
+
+                        '入庫
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_NYUKO_COL_NO).Value = product_storage
+
+                        '単価
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_UNITPRICE_COL_NO).Value = product_unitprice
+
+                        '為替
+                        sheet.Cells(row_no, NYUKA_PRODUCTS_FX_COL_NO).Value = product_fx
+
+                        'File Save
+                        book.Save()
+
+                        'File Close
+                        book.Close()
 
                     End If
-
-                    'File Open
-                    If IO.File.Exists(save_filename) Then 'Fileが存在する
-                        book = app.Workbooks.Open(save_filename)
-                    Else
-                        MsgBox("File:" + save_filename + "が存在しない")
-                        Return INGOODS_NG
-                    End If
-
-                    sheet = book.Worksheets(1)
-
-
-                    '日付の列番号を決定
-                    day_value = GetDayValue(product_day)
-
-                    '同じ品番の行番号を探す。同じ品番が無い場合、新しい行を追加する
-                    For row_no = 2 To MAX_ROW
-                        If Len(sheet.Cells(row_no, NYUKA_PRODUCTS_SHIIRE_COL_NO).Value) = 0 Then
-                            Exit For
-                        Else
-
-                        End If
-
-                    Next
-
-                    '入荷確定のデータを在庫表に書き込む
-                    '入荷確定日付
-                    sheet.Cells(row_no, NYUKA_DAY_COL_NO).Value = product_day
-
-                    '仕入れ先
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_SHIIRE_COL_NO).Value = client_name
-
-                    '品番
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_CODE_COL_NO).Value = product_code
-
-                    '品名
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_NAME_COL_NO).Value = product_name
-
-                    '入数
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_SLOT_COL_NO).Value = product_slot
-
-                    '入庫
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_NYUKO_COL_NO).Value = product_storage
-
-                    '単価
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_UNITPRICE_COL_NO).Value = product_unitprice
-
-                    '為替
-                    sheet.Cells(row_no, NYUKA_PRODUCTS_FX_COL_NO).Value = product_fx
-
-                    'File Save
-                    book.Save()
-
-                    'File Close
-                    book.Close()
-
-                   
-                End If
             Next
 
             app.Quit()
@@ -333,9 +348,14 @@ Public Class InputGoods
         RowCount = GetNotInputItems()
 
         If RowCount > 1 Then
-            app = CreateObject("Excel.Application")
-            app.Visible = False
-            app.DisplayAlerts = False
+            Try
+                app = CreateObject("Excel.Application")
+                app.Visible = False
+                app.DisplayAlerts = False
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Return INGOODS_NG
+            End Try
 
             For i = 0 To RowCount - 2
                 '入庫確定
@@ -530,7 +550,6 @@ Public Class InputGoods
                             End If
 
                         End If
-
                     Next
 
                     '入荷確定のデータを在庫表に書き込む
@@ -624,7 +643,6 @@ Public Class InputGoods
     Private Sub SetDataGridView()
         Dim dgv As New DataGridView
         Dim goods_arv_sch As New InputGoodsArrivalSchedule
-        Dim goods_arv_sch_data_path As String
         Dim strFile As String      '入荷予定ファイル 
 
         'Excelファイル関連
@@ -645,18 +663,25 @@ Public Class InputGoods
 
         '初期化
         dgv = MainFunction.NyukaKakutei_DataGridView
-        goods_arv_sch_data_path = goods_arv_sch.WriteDataPath()
-        'strFiles = System.IO.Directory.GetFiles(goods_arv_sch_data_path, "*.xlsx")
-        strFile = goods_arv_sch_data_path + "\入荷予定.xlsx"
+        strFile = DataPathDefinition.GetNyukaYoteiFilePath()
 
-        app = CreateObject("Excel.Application")
-        app.Visible = False
-        app.DisplayAlerts = False
+        Try
+            app = CreateObject("Excel.Application")
+            app.Visible = False
+            app.DisplayAlerts = False
+        Catch ex As Exception
+            MsgBox(ex.Message)
+            Exit Sub
+        End Try
 
         'File Open
-
         If IO.File.Exists(strFile) Then 'Fileが存在する
-            book = app.Workbooks.Open(strFile)
+            Try
+                book = app.Workbooks.Open(strFile)
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Exit Sub
+            End Try
         Else
             MsgBox("File:" + strFile + "が存在しない")
             Exit Sub
@@ -664,41 +689,38 @@ Public Class InputGoods
 
         sheet = book.Worksheets(1)
 
-        For row_no = START_ROW To MAX_ROW
-            If Len(sheet.Cells(row_no, READFILE_STORAGE_COL_NO).Value) > 0 Then
-                '日付
-                product_day = sheet.Cells(row_no, READFILE_DAY_COL_NO).Value
+        row_no = START_ROW
 
-                '仕入れ先情報
-                product_client_name = sheet.Cells(row_no, READFILE_SHIIRE_COL_NO).Value
+        Do While Len(sheet.Cells(row_no, READFILE_STORAGE_COL_NO).Value) > 0
+            '日付
+            product_day = sheet.Cells(row_no, READFILE_DAY_COL_NO).Value
+
+            '仕入れ先情報
+            product_client_name = sheet.Cells(row_no, READFILE_SHIIRE_COL_NO).Value
 
 
-                '品番
-                product_code = sheet.Cells(row_no, READFILE_CODE_COL_NO).Value
+            '品番
+            product_code = sheet.Cells(row_no, READFILE_CODE_COL_NO).Value
 
-                '品名
-                product_name = sheet.Cells(row_no, READFILE_NAME_COL_NO).Value
+            '品名
+            product_name = sheet.Cells(row_no, READFILE_NAME_COL_NO).Value
 
-                '入数
-                product_slot = sheet.Cells(row_no, READFILE_SLOT_COL_NO).Value
+            '入数
+            product_slot = sheet.Cells(row_no, READFILE_SLOT_COL_NO).Value
 
-                '入庫数
-                product_storage = sheet.Cells(row_no, READFILE_STORAGE_COL_NO).Value
+            '入庫数
+            product_storage = sheet.Cells(row_no, READFILE_STORAGE_COL_NO).Value
 
-                '単価
-                product_unitprice = sheet.Cells(row_no, READFILE_UNITPRICE_COL_NO).Value
+            '単価
+            product_unitprice = sheet.Cells(row_no, READFILE_UNITPRICE_COL_NO).Value
 
-                '為替
-                product_fx = sheet.Cells(row_no, READFILE_FX_COL_NO).Value
+            '為替
+            product_fx = sheet.Cells(row_no, READFILE_FX_COL_NO).Value
 
-                dgv.Rows.Add(False, product_client_name, product_day, product_code, product_name, product_slot, product_storage, product_unitprice, product_fx)
+            dgv.Rows.Add(False, product_client_name, product_day, product_code, product_name, product_slot, product_storage, product_unitprice, product_fx)
 
-            Else
-                Exit For
-
-            End If
-
-        Next
+            row_no = row_no + 1
+        Loop
 
         'File Close
         book.Close()
@@ -709,7 +731,6 @@ Public Class InputGoods
         sheet = Nothing
         book = Nothing
         app = Nothing
-
 
     End Sub
 

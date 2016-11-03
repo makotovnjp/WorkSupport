@@ -32,10 +32,8 @@ Public Class InputGoodsArrivalSchedule
     Private Const PRODUCTS_UNITPRICE_COL_NO As Integer = 5   '単価の列番号
     Private Const PRODUCTS_FX_COL_NO As Integer = 6   '為替の列番号
 
-    Private Const PRODUCT_TEMPLATE_FILENAME = "Template_入荷予定.xlsx"
-
     Private Const INVENTORY_START_ROW_NO = 2        ' 開始の行
-    Private Const MAX_ROW_NO As Integer = 1000      ' 最大の行数
+    Private Const MAX_ROW_NO As Integer = 10000     ' 最大の行数
 
     'Data Grid Viewの列番号
     'Private Const DGV_DAY_COL_NO As Integer = 0      '入荷予定日
@@ -404,7 +402,7 @@ Public Class InputGoodsArrivalSchedule
                 Return ARRSCHD_ERROR
             End If
 
-            sheet = book.Worksheets(1)
+            sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
 
             '書き込み開始の行番号を求める
             row_no = INVENTORY_START_ROW_NO
@@ -540,23 +538,34 @@ myError:
         Dim book As Excel.Workbook
         Dim sheet As Excel.Worksheet
 
-        filename = GetGoodsSchedulePath() + "\入荷予定.xlsx"
+        filename = DataPathDefinition.GetNyukaYoteiFilePath()
 
         'File存在確認
-        If System.IO.File.Exists(filename) Then
+        If IO.File.Exists(filename) Then
 
-            app = CreateObject("Excel.Application")
-            app.Visible = False
-            app.DisplayAlerts = False
+            Try
+                app = CreateObject("Excel.Application")
+                app.Visible = False
+                app.DisplayAlerts = False
+            Catch ex As Exception
+                MsgBox(ex.Message)
+                Exit Sub
+            End Try
 
             'File Open
             If IO.File.Exists(filename) Then 'Fileが存在する
-                book = app.Workbooks.Open(filename)
+                Try
+                    book = app.Workbooks.Open(filename)
+                Catch ex As Exception
+                    MsgBox(ex.Message)
+                    Exit Sub
+                End Try
+
             Else
                 MsgBox("File:" + filename + "が存在しない")
                 Exit Sub
             End If
-            sheet = book.Worksheets(1)
+            sheet = book.Worksheets(CLIENT_FILE_SHEET_NO)
 
             For delete_row = INVENTORY_START_ROW_NO To MAX_ROW_NO
                 If (sheet.Cells(delete_row, WRITEFILE_DAY_COL_NO).Value = product_info.product_day) AndAlso
@@ -578,13 +587,11 @@ myError:
             delete_range = "A" + delete_row.ToString + ":" + "A" + delete_row.ToString
             sheet.Range(delete_range).EntireRow.Delete()
 
-
             'File Save
             book.Save()
 
             'File Close
             book.Close()
-
 
             app.Quit()
 
@@ -594,9 +601,6 @@ myError:
             app = Nothing
 
         End If
-
-
-
 
     End Sub
 
