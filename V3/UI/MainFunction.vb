@@ -225,11 +225,6 @@ Public Class MainFunction
     ''' <param name="e"></param>
     ''' <remarks></remarks>
     Private Sub NyukaYotei_OK_Bt_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles NyukaYotei_OK_Bt.Click
-        If TextBox1.Text = "" Then
-            MessageBox.Show("為替比を入力ください", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-            Exit Sub
-        End If
-
         Dim result As DialogResult = MessageBox.Show("入荷予定を入れますか？", "確認", MessageBoxButtons.YesNo)
 
         If result = Windows.Forms.DialogResult.Yes Then

@@ -429,18 +429,21 @@ Public Class InputGoodsArrivalSchedule
 
                     If IsNumeric(product_storage) = False Then
                         MsgBox((i + 1).ToString & "行目の入庫数の値は数値ではない")
-                        Return ARRSCHD_ERROR
+                        GoTo myError
                     End If
 
                     If IsNumeric(product_unitprice) = False Then
                         MsgBox((i + 1).ToString & "行目の単価の値は数値ではない")
-                        Return ARRSCHD_ERROR
+                        GoTo myError
                     End If
 
-                    If IsNumeric(product_fx) = False Then
-                        MsgBox((i + 1).ToString & "為替の値は数値ではない")
-                        Return ARRSCHD_ERROR
+                    If Len(product_fx) > 0 Then
+                        If IsNumeric(product_fx) = False Then
+                            MsgBox((i + 1).ToString & "為替の値は数値ではない")
+                            GoTo myError
+                        End If
                     End If
+
 
                     '日付
                     sheet.Cells(row_no, WRITEFILE_DAY_COL_NO).Value = product_day
@@ -468,7 +471,7 @@ Public Class InputGoodsArrivalSchedule
 
                         row_no = row_no + 1
 
-                End If
+                    End If
 
             Next
 
@@ -493,6 +496,19 @@ Public Class InputGoodsArrivalSchedule
         Init()
 
         Return ARRSCHD_OK
+
+myError:
+        'File Close
+        book.Close()
+
+        app.Quit()
+
+        ' オブジェクトを解放します。
+        sheet = Nothing
+        book = Nothing
+        app = Nothing
+        Return ARRSCHD_ERROR
+
     End Function
 
     ''' <summary>
